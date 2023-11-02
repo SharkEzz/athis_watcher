@@ -3,13 +3,7 @@ import puppeteer from 'puppeteer';
 import database from '../database.json';
 import products from './products.json';
 import selectors from './selectors.json';
-
-interface Selector {
-  name: string;
-  type: string;
-  selector: string;
-  path: string;
-}
+import type { Selector } from './types.js';
 
 const browser = await puppeteer.launch({ headless: 'new' });
 const page = await browser.newPage();
@@ -29,9 +23,15 @@ for await (const productUrl of products) {
   const textContent = (await (await content.getProperty('textContent')).jsonValue()) as string | null;
   if (!textContent) continue;
 
-  const jsonData = JSON.parse(textContent) as Record<string, unknown>;
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func -- Needed to access nested properties
-  const price = new Function('data', `return data.${selector.path}`)(jsonData) as number;
+  let price: number;
+
+  if (selector.type === 'json') {
+    const jsonData = JSON.parse(textContent) as Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func -- Needed to access nested properties
+    price = new Function('data', `return data.${selector.path}`)(jsonData) as number;
+  } else {
+    price = Number(textContent);
+  }
 
   const previousPrice = (database as unknown as Record<string, string>)[productUrl];
   if (previousPrice && Number(price) < Number(previousPrice)) {
