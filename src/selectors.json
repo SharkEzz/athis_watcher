@@ -1,0 +1,13 @@
+{
+    "amazon\\.(fr|co\\.uk)": {
+      "name": "amazon",
+      "type": "json",
+      "selector": ".a-section.aok-hidden.twister-plus-buying-options-price-data",
+      "path": "desktop_buybox_group_1[0].priceAmount"
+    },
+    "google.fr": {
+      "name": "google",
+      "type": "selector",
+      "selector": ".a-section.aok-hidden.twister-plus-buying-options-price-data"
+    }
+}
